@@ -85,6 +85,81 @@ describe("findAll", function () {
       },
     ]);
   });
+
+  test("works: filter by name", async function () {
+    let companies = await Company.findAll({ name: "1" });
+    expect(companies).toEqual([
+      {
+        handle: "c1",
+        name: "C1",
+        description: "Desc1",
+        numEmployees: 1,
+        logoUrl: "http://c1.img",
+      },
+    ]);
+  });
+
+  test("works: filter by minimum employees", async function() {
+    let companies = await Company.findAll({ minEmp: 2});
+    expect(companies).toEqual([
+      {
+        handle: "c2",
+        name: "C2",
+        description: "Desc2",
+        numEmployees: 2,
+        logoUrl: "http://c2.img",
+      },
+      {
+        handle: "c3",
+        name: "C3",
+        description: "Desc3",
+        numEmployees: 3,
+        logoUrl: "http://c3.img",
+      }
+    ]);
+  });
+
+  test("works: filter by maxmimum employees", async function() {
+    let companies = await Company.findAll({ maxEmp: 2});
+    expect(companies).toEqual([
+      {
+        handle: "c1",
+        name: "C1",
+        description: "Desc1",
+        numEmployees: 1,
+        logoUrl: "http://c1.img",
+      },
+      {
+        handle: "c2",
+        name: "C2",
+        description: "Desc2",
+        numEmployees: 2,
+        logoUrl: "http://c2.img",
+      }
+    ]);
+  });
+
+  test("works: with min and max employees", async function () {
+    let companies = await Company.findAll({ minEmp: 1, maxEmp: 2 });
+    expect(companies).toEqual([
+      {
+        handle: "c1",
+        name: "C1",
+        description: "Desc1",
+        numEmployees: 1,
+        logoUrl: "http://c1.img",
+      },
+      {
+        handle: "c2",
+        name: "C2",
+        description: "Desc2",
+        numEmployees: 2,
+        logoUrl: "http://c2.img",
+      }
+    ]);
+  });
+
+
 });
 
 /************************************** get */
@@ -98,6 +173,27 @@ describe("get", function () {
       description: "Desc1",
       numEmployees: 1,
       logoUrl: "http://c1.img",
+      jobs: [{
+        equity: "0.1",
+         id: 184,
+         salary: 100,
+         title: "Job1",
+        },{
+        equity: "0.2",
+        id: 185,
+        salary: 200,
+        title: "Job2",
+        },{
+        equity: "0",
+        id: 186,
+        salary: 300,
+        title: "Job3",
+        },{
+        equity: null,
+        id: 187,
+        salary: null,
+        title: "Job4",
+        },]
     });
   });
 

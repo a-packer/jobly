@@ -42,8 +42,38 @@ function ensureLoggedIn(req, res, next) {
   }
 }
 
+/** Middleware to ensure logged in and has isAdmin on res.locals.user flag  */
+
+function ensureAdmin(req, res, next) {
+  try{ 
+    if(!res.locals.user || res.locals.user.isAdmin) {
+      throw new UnauthorizedError();
+    }
+    return next();
+  } catch(err) {
+    return next(err);
+  }
+}
+
+/** Middleware that checks for valid user or has admin privlages */
+function ensureValidUserOrIsAdmin(req, res, next) {
+  try {
+    const user = res.locals.user; 
+    // check to see if logged in AND is the appropriate user OR is admin
+    if (!(user && (user.username === req.params.username || user.isAdmin))) {
+      throw new UnauthorizedError();
+    }
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+}
+
+
 
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
+  ensureAdmin,
+  ensureValidUserOrIsAdmin
 };

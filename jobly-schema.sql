@@ -21,6 +21,7 @@ CREATE TABLE jobs (
   title TEXT NOT NULL,
   salary INTEGER CHECK (salary >= 0),
   equity NUMERIC CHECK (equity <= 1.0),
+  -- Numeric is a Fixed-Precision data type vs Float which is approximate 
   company_handle VARCHAR(25) NOT NULL
     REFERENCES companies ON DELETE CASCADE
 );

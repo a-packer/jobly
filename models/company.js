@@ -44,20 +44,55 @@ class Company {
     return company;
   }
 
-  /** Find all companies.
-   *
+  /** Find all companies, or select companies based on filter search queries
+   * minEmp, maxEmp, name (case-insensitive)
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
-   * */
+  */
 
-  static async findAll() {
-    const companiesRes = await db.query(
-          `SELECT handle,
-                  name,
-                  description,
-                  num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
-           FROM companies
-           ORDER BY name`);
+  static async findAll(filters = {}) {
+    let sqlQuery = `SELECT handle,
+                      name,
+                      description,
+                      num_employees AS "numEmployees",
+                      logo_url AS "logoUrl"
+                    FROM companies`;
+
+    let whereFilters = []; // add desired filters to this array, eg 'num_employees > $2'
+    let queryValues = []; // add values relevant filters to this array to include with query
+    
+    const { name, minEmp, maxEmp } = filters;
+
+    /** check to make sure minEmp is less than maxEmp, otherwise throw error */
+    if (minEmp > maxEmp) {
+      throw new BadRequestError("Minimum # of employees has to be less than maximum # of employees");
+    }
+
+    /** if a filter is present, add a queryValue to queryValues and add the SQL filtering where expression into whereFilters */
+
+    if (name) { 
+      queryValues.push(`%${name}%`); // %'s are for the regular expression in SQL, ie find names that have this part of a name in it
+      whereFilters.push(`name ILIKE $${queryValues.length}`);
+    }
+
+    if (minEmp !== undefined) {
+      queryValues.push(minEmp);
+      whereFilters.push(`num_employees >= $${queryValues.length}`);
+    }
+
+    if (maxEmp !== undefined) {
+      queryValues.push(maxEmp);
+      whereFilters.push(`num_employees <= $${queryValues.length}`);
+    }
+
+    if (whereFilters.length > 0) {
+      sqlQuery += " WHERE " + whereFilters.join(" AND ");
+    }
+    
+    /** add Order By name to end of sqlQuery  */
+    sqlQuery += " ORDER BY name"; 
+
+    /** make the query with the fully constructed sqlQuery and any query values*/
+    const companiesRes = await db.query(sqlQuery, queryValues);
     return companiesRes.rows;
   }
 
@@ -83,6 +118,18 @@ class Company {
     const company = companyRes.rows[0];
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
+
+    const jobsRes = await db.query(
+      `SELECT id,
+              title,
+              salary,
+              equity
+      FROM jobs
+      WHERE company_handle= $1
+      ORDER BY id`, 
+      [handle]);
+
+    company.jobs = jobsRes.rows;
 
     return company;
   }
