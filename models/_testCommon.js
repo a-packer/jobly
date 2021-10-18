@@ -32,7 +32,7 @@ async function commonBeforeAll() {
                           first_name,
                           last_name,
                           email)
-        VALUES ('u1', $1, 'U1F', 'U1L', 'u1@email.com'),
+        VALUES ('u1', $1, 'U1F', 'U1L', 'user1@user.com'),
                ('u2', $2, 'U2F', 'U2L', 'u2@email.com')
         RETURNING username`,
       [

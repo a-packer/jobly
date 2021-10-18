@@ -24,7 +24,7 @@ class Company {
         [handle]);
 
     if (duplicateCheck.rows[0])
-      throw new BadRequestError(`Duplicate company: ${handle}`);
+      throw new BadRequestError(`Duplicate company`);
 
     const result = await db.query(
           `INSERT INTO companies
